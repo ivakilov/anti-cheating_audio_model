@@ -10,7 +10,7 @@ from joint_ml._metric import Metric
 
 
 class RandomForestWrapper(torch.nn.Module):
-    def __init__(self, max_depth=10, min_samples_split=10, n_estimators=300, random_state=21):
+    def __init__(self, max_depth=10, min_samples_split=8, n_estimators=300, random_state=0):
         super().__init__()
         self.model = RandomForestClassifier(
             max_depth=max_depth,
@@ -25,7 +25,7 @@ class RandomForestWrapper(torch.nn.Module):
         return torch.tensor(self.model.predict(x))
 
 
-def load_model(max_depth=10, min_samples_split=10, n_estimators=300, random_state=21) -> torch.nn.Module:
+def load_model(max_depth=10, min_samples_split=8, n_estimators=300, random_state=0) -> torch.nn.Module:
     return RandomForestWrapper(
         max_depth=max_depth,
         min_samples_split=min_samples_split,
@@ -40,8 +40,8 @@ def get_dataset(dataset_path: str, with_split: bool) -> tuple[Dataset, Dataset, 
     y = df.iloc[:, -1].values
     
     if with_split:
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=21)
-        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=21)  # 0.25 * 0.8 = 0.2
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=0)  # 0.25 * 0.8 = 0.2
         
         train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), torch.tensor(y_train, dtype=torch.long))
         val_dataset = TensorDataset(torch.tensor(X_val, dtype=torch.float32), torch.tensor(y_val, dtype=torch.long))
@@ -115,3 +115,4 @@ def get_prediction(model: torch.nn.Module, dataset_path: str) -> list:
     with torch.no_grad():
         predictions = model(X).numpy()
     return predictions.tolist()
+
